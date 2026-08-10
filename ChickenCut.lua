@@ -1,37 +1,48 @@
 -- =====================================================
--- HIDE/DELETE SPECIFIC OBJECTS (AUTO)
+-- AUTO DELETE: Workspace.World.Bounds (ALL OBJECTS)
 -- =====================================================
 
-print("🔍 Starting cleanup...")
+print("🔍 Starting auto-delete for Workspace.World.Bounds...")
 
--- 1. إخفاء وحذف Wall25
-local wall = workspace:FindFirstChild("World")
-if wall then
-    local bounds = wall:FindFirstChild("Bounds")
-    if bounds then
-        local wall25 = bounds:FindFirstChild("Wall25")
-        if wall25 then
-            wall25:Destroy()
-            print("✅ Wall25 deleted!")
-        else
-            print("⚠️ Wall25 not found!")
-        end
+local function DeleteAllBounds()
+    local world = workspace:FindFirstChild("World")
+    if not world then
+        print("⚠️ World not found!")
+        return
     end
+    
+    local bounds = world:FindFirstChild("Bounds")
+    if not bounds then
+        print("⚠️ Bounds not found!")
+        return
+    end
+    
+    local count = 0
+    for _, child in pairs(bounds:GetChildren()) do
+        child:Destroy()
+        count = count + 1
+    end
+    print("🗑️ Deleted " .. count .. " objects from Bounds")
 end
 
--- 2. إخفاء وحذف الدجاجات (من 0 إلى 10)
-local chickenBodies = workspace:FindFirstChild("ChickenBodies")
-if chickenBodies then
-    for i = 0, 10 do
-        local chickenName = "ChickenBody_tower-rival:" .. i
-        local chicken = chickenBodies:FindFirstChild(chickenName)
-        if chicken then
-            chicken:Destroy()
-            print("✅ " .. chickenName .. " deleted!")
-        end
+-- حذف فوري
+DeleteAllBounds()
+
+-- مراقبة أي كائن جديد
+local world = workspace:FindFirstChild("World")
+if world then
+    local bounds = world:FindFirstChild("Bounds")
+    if bounds then
+        bounds.ChildAdded:Connect(function(child)
+            child:Destroy()
+            print("🗑️ Auto-deleted: " .. child.Name)
+        end)
+        print("✅ Auto-watcher active for Workspace.World.Bounds")
+    else
+        print("⚠️ Bounds not found for monitoring!")
     end
 else
-    print("⚠️ ChickenBodies folder not found!")
+    print("⚠️ World not found for monitoring!")
 end
 
-print("✅ Cleanup complete!")
+print("✅ Script loaded and monitoring active!")
