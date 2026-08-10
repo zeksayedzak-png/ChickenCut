@@ -1,48 +1,48 @@
 -- =====================================================
--- AUTO DELETE: Workspace.World.Bounds (ALL OBJECTS)
+-- PREVENT BattleFx & Chickens FROM APPEARING
 -- =====================================================
 
-print("🔍 Starting auto-delete for Workspace.World.Bounds...")
+print("🔧 Preventing BattleFx and Chickens...")
 
-local function DeleteAllBounds()
-    local world = workspace:FindFirstChild("World")
-    if not world then
-        print("⚠️ World not found!")
-        return
+local function DisableBattleFx()
+    local battleFx = workspace:FindFirstChild("BattleFx")
+    if battleFx then
+        battleFx:Destroy()
     end
-    
-    local bounds = world:FindFirstChild("Bounds")
-    if not bounds then
-        print("⚠️ Bounds not found!")
-        return
+end
+
+local function DisableChickens()
+    local chickenBodies = workspace:FindFirstChild("ChickenBodies")
+    if chickenBodies then
+        for _, child in pairs(chickenBodies:GetChildren()) do
+            if child:IsA("BasePart") then
+                child.Transparency = 1
+                child.CanCollide = false
+                child.Anchored = true
+            end
+            if child:FindFirstChild("Humanoid") then
+                child.Humanoid:Destroy()
+            end
+        end
     end
-    
-    local count = 0
-    for _, child in pairs(bounds:GetChildren()) do
+end
+
+-- منع فوري
+DisableBattleFx()
+DisableChickens()
+
+-- مراقبة ومنع أي محاولة لإعادة الإنشاء
+workspace.ChildAdded:Connect(function(child)
+    if child.Name == "BattleFx" then
         child:Destroy()
-        count = count + 1
+        print("🚫 Blocked BattleFx from spawning")
+    elseif child.Name == "ChickenBodies" then
+        for _, c in pairs(child:GetChildren()) do
+            c:Destroy()
+        end
+        child:Destroy()
+        print("🚫 Blocked ChickenBodies from spawning")
     end
-    print("🗑️ Deleted " .. count .. " objects from Bounds")
-end
+end)
 
--- حذف فوري
-DeleteAllBounds()
-
--- مراقبة أي كائن جديد
-local world = workspace:FindFirstChild("World")
-if world then
-    local bounds = world:FindFirstChild("Bounds")
-    if bounds then
-        bounds.ChildAdded:Connect(function(child)
-            child:Destroy()
-            print("🗑️ Auto-deleted: " .. child.Name)
-        end)
-        print("✅ Auto-watcher active for Workspace.World.Bounds")
-    else
-        print("⚠️ Bounds not found for monitoring!")
-    end
-else
-    print("⚠️ World not found for monitoring!")
-end
-
-print("✅ Script loaded and monitoring active!")
+print("✅ Prevention active (BattleFx & Chickens will not appear)")
